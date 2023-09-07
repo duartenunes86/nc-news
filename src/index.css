@@ -70,3 +70,7 @@ button:focus-visible {
 h1{
   text-decoration: none;
 }
+body{
+  background-color: #00008b;
+  color:white
+}
