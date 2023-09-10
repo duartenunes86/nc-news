@@ -7,31 +7,45 @@ import { useContext } from 'react';
 
 
 const Article = () =>{
+  const [error, setError] = useState(null)
   const { user, setUser } = useContext(UserContext);
-    const [article,setArticle]=useState({})
+    const [article,setArticle]=useState(null)
     const { article_id } = useParams();
     const [comments, setComments] = useState([])
     const [comment, setComment] = useState("")
     const [commentPosted, setCommentPosted]=useState("")
+    const [deleteMessage, setDeleteMessage]=useState("")
 
 useEffect(()=>{
-    // const { article_id } = useParams();
+  setError(null);
 
     fetch(
         `https://great-news.onrender.com/api/articles/${article_id}`
     )
-    .then((data)=>{return data.json()})
+    .then((data)=>{
+      console.log(data.status)
+      if(data.status=== 404){
+        setError("Error 404 - Invalid input")
+      }
+      return data.json()})
     .then(datajson=>{
-        console.log(datajson)
+        console.log(datajson, datajson)
         setArticle(datajson.article)
+}).catch((err)=>{
+  setError(err)
 })
-},[article_id])
+},[])
+
 useEffect(()=>{
     fetch(`https://great-news.onrender.com/api/articles/${article_id}/comments`).then((data)=>{return data.json()})
     .then(datajson=>{
         console.log(datajson)
         setComments(datajson.comments)
-})},[article_id])
+}).catch((err)=>{setError(err)})},[comments])
+if(error) {return <div>Error: {error}</div>}
+else if(article===null) {return <div>The article does not exist</div>}
+else if(typeof article==="undefined") {return <div>The article does not exist { error}</div>}
+else{
 return (<>
 <h2>{article.title}</h2>
 <h3>{article.body}</h3>
@@ -56,7 +70,11 @@ return (<>
   <div>{commentPosted}</div>
 
 {comments.map(element=>{
-    return (<><p key={element.body}>{element.body} by {element.author} votes:{element.votes}</p><button onClick={()=>{
+  console.log('element.author:', element.author);
+  console.log('user:', user);
+    return (<>
+    <p key={element.comment_id}>{element.body} by {element.author} votes:{element.votes}</p>
+    <button onClick={()=>{
         
         axios.patch(`https://great-news.onrender.com/api/comments/${element.comment_id}`, {
       "inc_votes": 1
@@ -70,10 +88,13 @@ return (<>
         }
         return comment;
       }))
-    }}>Like</button></>)
+    }}>Like</button>{(element.author === user.username)? <button onClick={()=>{
+      axios.delete(`https://great-news.onrender.com/api/comments/${element.comment_id}`).then(()=>{setDeleteMessage("Your comment was deleted")})
+    }}>Delete</button>:""}</>)
+    
 })}
-
+<div>{deleteMessage}</div>
 </>)
 }
-
+}
 export default Article

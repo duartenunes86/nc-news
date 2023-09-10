@@ -9,14 +9,16 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 
 
 import './App.css'
-import Index from './Index'
+import Articles from './Articles'
 import Article from './Article';
 import Login_sign_up from './Login_sign_up';
 import Signup from './Signup';
+import Topic from './Topic';
+
 
 
 function App() {
-  const [count, setCount] = useState(0)
+  
   const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate()
 
@@ -24,11 +26,12 @@ function App() {
     <>
     <Header />
     <Routes>
-        <Route path="/" element={<Index />} />
+        <Route path="/" element={<Articles />} />
           <Route path="/signup" element={<Signup navigate={navigate}/>} /> 
         <Route path="/login" element={<Login_sign_up navigate={navigate}/>}></Route>
-        <Route path="/:article_id" element={<Article />}></Route>
-        {/* <Route path="/new-user" element={<Authentication />}></Route> */}
+        <Route path="/articles/:article_id" element={<Article />}></Route>
+        <Route path="/topics/:topic" element={<Topic  />}></Route>
+        
       </Routes>
       
     </>
